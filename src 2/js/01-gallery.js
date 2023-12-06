@@ -1,37 +1,46 @@
-import { galleryItems } from './gallery-items.js';
+import { galleryItems } from "./gallery-items.js";
+// Change code below this line
 
-function createGallery () {
-    const galleryList = document.querySelector('.gallery');
+const galleryContainer = document.querySelector(".gallery");
+const galleryMarkup = createGalleryMarkup(galleryItems);
+galleryContainer.insertAdjacentHTML("beforeend", galleryMarkup);
+galleryContainer.addEventListener("click", onLinkClick);
 
-    const galleryMarkup = galleryItems.map(
-        ({original, preview, description}) =>
-        `
-      <li class="gallery__item">
-        <a class="gallery__link" href="${original}">
-          <img class="gallery__image" src="${preview}" data-source="${original}" alt="${description}" />
-        </a>
-      </li>
-    `
-    )
-    .join('');
-
-galleryList.innerHTML = galleryMarkup;
-};
-
-function handleImageClick(event) {
-    event.preventDefault();
-
-    if (event.target.nodeName === 'IMG') {
-        const imageUrl = event.target.dataset.source;
-        const instance = basicLightbox.create(`
-        <img src="${imageUrl}" alt="${event.target.alt}">`);
-        instance.show();
-    }
+function createGalleryMarkup(items) {
+  return galleryItems
+    .map(({ preview, original, description }) => {
+      return `<div class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+    alt="${description}"
+    />
+  </a>
+</div>`;
+    })
+    .join("");
 }
 
-const galleryList = document.querySelector('.gallery');
-galleryList.addEventListener('click', handleImageClick);
-
-createGallery();
-
 console.log(galleryItems);
+
+function onLinkClick(e) {
+  if (e.target.nodeName !== "IMG") {
+    return;
+  }
+  e.preventDefault();
+  const fullSizeItemLink = e.target.dataset.source;
+
+  const instance = basicLightbox.create(` <img src="${fullSizeItemLink}">`);
+
+  instance.show();
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      instance.close();
+
+      document.removeEventListener("keydown", e);
+    }
+  });
+}
